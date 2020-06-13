@@ -29,3 +29,26 @@ functions:
           path: tasks/{taskId}
           method: put
           cors: true
+  users:
+    handler: handler.users
+    environment:
+      DB_HOST: ${opt:DB_HOST}
+      DB_USER: ${opt:DB_USER}
+      DB_PASSWORD: ${opt:DB_PASSWORD}
+    events:
+      - http: 
+          path: users
+          method: get
+          cors: true
+      - http: 
+          path: users
+          method: post
+          cors: true
+      - http:
+          path: users/{userId}
+          method: delete
+          cors: true
+      - http:
+          path: users/{userId}
+          method: put
+          cors: true

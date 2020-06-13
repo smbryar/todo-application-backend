@@ -16,56 +16,8 @@ const connection = mysql.createConnection({
   database: "todo"
 });
 
-const exampleTasks = [
-  {
-    id: 1,
-    name: "Tidying",
-    taskDetails: "Sort through paperwork",
-    startDate: "2020-06-06",
-    endDate: "2020-06-11",
-    completed: false,
-    repeats: false
-  },
-  {
-    id: 2,
-    name: "Cleaning",
-    taskDetails: "Clean bathrooms",
-    startDate: "2020-06-05",
-    endDate: "2020-06-10",
-    completed: false,
-    repeats: true,
-    repeatType: "repeatsAfterCompletion",
-    repeatAfterCompletionFrequency: 7,
-    repeatAfterCompletionFrequencyType: "days"
-  },
-  {
-    id: 3,
-    name: "Hoovering",
-    taskDetails: "Downstairs",
-    startDate: "2020-06-03",
-    endDate: "2020-06-04",
-    completed: true,
-    completeDate: "2020-04-26",
-    repeats: false
-  },
-  {
-    id: 4,
-    name: "Post Letter",
-    taskDetails: "Return to sender",
-    startDate: "2020-06-03",
-    endDate: "2020-06-10",
-    completed: false,
-    repeats: false
-  },
-  {
-    id: 5,
-    name: "Tesco Order",
-    startDate: "2020-06-01",
-    endDate: "2020-06-03",
-    completed: false,
-    repeats: false
-  }
-];
+
+// Tasks table
 
 app.get("/tasks", function (req, res) {
   const queryGet = "SELECT * FROM Tasks;";
@@ -195,4 +147,118 @@ app.put("/tasks/:taskId", function (req, res) {
   });
 });
 
+
+// Users table
+
+app.get("/users", function (req, res) {
+  const queryGet = "SELECT * FROM Users;";
+
+  connection.query(queryGet, function (error, data) {
+    if (error) {
+      console.log("Error fetching users", error);
+      res.status(500).json({
+        error: error
+      })
+    }
+    else {
+      res.status(200).json({
+        users: data
+      })
+    }
+  });
+
+});
+
+app.post("/users", function (req, res) {
+  const usernameValue = req.body.username;
+  const queryPost = "INSERT INTO Users (username) VALUES (?);";
+  const querySelect = "SELECT * FROM Users WHERE userID = ?;"
+
+  connection.query(queryPost, usernameValue, function (error, data) {
+    if (error) {
+      console.log("Error adding user", error);
+      res.status(500).json({
+        error: error
+      })
+    }
+    else {
+      connection.query(querySelect, [data.insertId], function (error, data) {
+        if (error) {
+          console.log("Error selecting new user", error);
+          res.status(500).json({
+            error: error
+          })
+        }
+        else {
+          res.status(201).json({
+            newUser: data
+          })
+        }
+      })
+    }
+  });
+});
+
+app.delete("/users/:userId", function (req, res) {
+  const userIDValue = req.params.userId;
+  const queryDelete = "DELETE FROM Users WHERE userID = ?;";
+
+  connection.query(queryDelete, userIDValue, function (error, data) {
+    if (error) {
+      console.log("Error deleting user", error);
+      res.status(500).json({
+        error: error
+      })
+    }
+    else if (data.affectedRows === 0) {
+      console.log("User being deleted does not exist");
+      res.status(404).send("User being deleted does not exist");
+    }
+    else {
+      res.sendStatus(200);
+    }
+  });
+});
+
+app.put("/users/:userId", function (req, res) {
+  const userIDValue = req.params.userId;
+  const usernameValue = req.body.username;  
+  const queryUpdate = "UPDATE Users SET username = ? WHERE userID = ?;";
+  const querySelect = "SELECT * FROM Users WHERE userID = ?;"
+
+  connection.query(queryUpdate, [usernameValue, userIDValue], function (error, data) {
+    if (error) {
+      console.log("Error updating user", error);
+      res.status(500).json({
+        error: error
+      })
+    }
+    else if (data.affectedRows === 0) {
+      console.log("User being updated does not exist");
+      res.status(404).send("User being updated does not exist");
+    }
+    else if (data.changedRows === 0) {
+      console.log("No changes were made to the user");
+      res.status(500).send("No changes were made to the user");
+    }
+    else {
+      connection.query(querySelect, userIDValue, function (error, data) {
+        if (error) {
+          console.log("Error selecting new user", error);
+          res.status(500).json({
+            error: error
+          })
+        }
+        else {
+          res.status(200).json({
+            updatedUser: data
+          })
+        }
+      })
+    }
+  });
+});
+
+
 module.exports.tasks = serverless(app);
+module.exports.users = serverless(app);
