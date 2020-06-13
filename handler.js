@@ -156,4 +156,4 @@ app.put("/tasks/:taskId", function(req, res) {
   }
 });
 
-module.exports.handler = serverless(app);
+module.exports.tasks = serverless(app);
