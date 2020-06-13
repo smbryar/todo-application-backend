@@ -2,11 +2,19 @@ const express = require("express");
 const serverless = require("serverless-http");
 const cors = require("cors");
 const bodyParser = require("body-parser");
+const mysql = require("mysql");
 
 const app = express();
 
 app.use(cors());
 app.use(bodyParser.json());
+
+const connection = mysql.createConnection({
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: "todo"
+});
 
 const exampleTasks = [
   {
@@ -60,13 +68,61 @@ const exampleTasks = [
 ];
 
 app.get("/tasks", function(req, res) {
-  res.status(200).send(exampleTasks);
+  const query = "SELECT * FROM Tasks;";
+
+  connection.query(query, function (error, data) {
+    if (error) {
+      console.log("Error fetching tasks", error);
+      res.status(500).json({
+        error: error
+      })
+    }
+    else {
+      res.status(200).json({
+        tasks: data
+      })
+    }
+  });
+
 });
 
 app.post("/tasks", function(req, res) {
-  const name = req.body.name;
-  res.status(201).send({
-    "message": `Received a request to add task: ${name}`
+  const userIDValue = req.body.userID;
+  const nameValue = req.body.name;
+  const taskDetailsValue = req.body.taskDetails;
+  const startDateValue = req.body.startDate;
+  const endDateValue = req.body.endDate;
+  const repeatsValue = req.body.repeats;
+  const repeatTypeValue = req.body.repeatType;
+  const repeatAfterCompletionFrequencyValue = req.body.repeatAfterCompletionFrequency;
+  const repeatAfterCompletionFrequencyTypeValue = req.body.repeatAfterCompletionFrequencyType;
+  const completedValue = req.body.completed;
+  
+  const query = "INSERT INTO Tasks (userID, name, taskDetails, startDate, endDate, repeats, repeatType, repeatAfterCompletionFrequency, repeatAfterCompletionFrequencyType, completed) VALUES (?,?,?,?,?,?,?,?,?,?);";
+  const querySelect = "SELECT * FROM Tasks WHERE taskID = ?"
+
+  connection.query(query, [userIDValue, nameValue, taskDetailsValue, startDateValue, endDateValue, repeatsValue, repeatTypeValue, repeatAfterCompletionFrequencyValue, repeatAfterCompletionFrequencyTypeValue, completedValue], function (error, data) {
+    if (error) {
+      console.log("Error adding task", error);
+      res.status(500).json({
+        error: error
+      })
+    }
+    else {
+      connection.query(querySelect, [data.insertId], function(error, data) {
+        if (error) {
+          console.log("Error selecting new task", error);
+          res.status(500).json({
+            error: error
+          })
+        }
+        else {
+          res.status(201).json({
+            newTask: data
+          })
+        }
+      })       
+    }
   });
 });
 
