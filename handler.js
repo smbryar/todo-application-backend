@@ -137,6 +137,10 @@ app.delete("/tasks/:taskId", function (req, res) {
         error: error
       })
     }
+    else if (data.affectedRows === 0) {
+      console.log("Task being deleted does not exist");
+      res.status(404).send("Task being deleted does not exist");
+    }
     else {
       res.sendStatus(200);
     }
