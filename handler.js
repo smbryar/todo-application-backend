@@ -35,7 +35,6 @@ app.get("/tasks", function (req, res) {
       })
     }
   });
-
 });
 
 app.post("/tasks", function (req, res) {
@@ -130,21 +129,9 @@ app.put("/tasks/:taskId", function (req, res) {
       res.status(500).send("No changes were made to the task");
     }
     else {
-      connection.query(querySelect, taskIDValue, function (error, data) {
-        if (error) {
-          console.log("Error selecting new task", error);
-          res.status(500).json({
-            error: error
-          })
-        }
-        else {
-          res.status(200).json({
-            updatedTask: data
-          })
-        }
-      })
+      res.sendStatus(200)
     }
-  });
+  })
 });
 
 
@@ -222,7 +209,7 @@ app.delete("/users/:userId", function (req, res) {
 
 app.put("/users/:userId", function (req, res) {
   const userIDValue = req.params.userId;
-  const usernameValue = req.body.username;  
+  const usernameValue = req.body.username;
   const queryUpdate = "UPDATE Users SET username = ? WHERE userID = ?;";
   const querySelect = "SELECT * FROM Users WHERE userID = ?;"
 
@@ -242,21 +229,9 @@ app.put("/users/:userId", function (req, res) {
       res.status(500).send("No changes were made to the user");
     }
     else {
-      connection.query(querySelect, userIDValue, function (error, data) {
-        if (error) {
-          console.log("Error selecting new user", error);
-          res.status(500).json({
-            error: error
-          })
-        }
-        else {
-          res.status(200).json({
-            updatedUser: data
-          })
-        }
-      })
+      res.sendStatus(200)
     }
-  });
+  })
 });
 
 
