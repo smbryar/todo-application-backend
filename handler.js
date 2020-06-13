@@ -99,7 +99,7 @@ app.post("/tasks", function (req, res) {
   const completedValue = req.body.completed;
 
   const queryPost = "INSERT INTO Tasks (userID, name, taskDetails, startDate, endDate, repeats, repeatType, repeatAfterCompletionFrequency, repeatAfterCompletionFrequencyType, completed) VALUES (?,?,?,?,?,?,?,?,?,?);";
-  const querySelect = "SELECT * FROM Tasks WHERE taskID = ?"
+  const querySelect = "SELECT * FROM Tasks WHERE taskID = ?;"
 
   connection.query(queryPost, [userIDValue, nameValue, taskDetailsValue, startDateValue, endDateValue, repeatsValue, repeatTypeValue, repeatAfterCompletionFrequencyValue, repeatAfterCompletionFrequencyTypeValue, completedValue], function (error, data) {
     if (error) {
@@ -148,18 +148,51 @@ app.delete("/tasks/:taskId", function (req, res) {
 });
 
 app.put("/tasks/:taskId", function (req, res) {
-  const taskId = req.params.taskId;
+  const userIDValue = req.body.userID;
+  const nameValue = req.body.name;
+  const taskDetailsValue = req.body.taskDetails;
+  const startDateValue = req.body.startDate;
+  const endDateValue = req.body.endDate;
+  const repeatsValue = req.body.repeats;
+  const repeatTypeValue = req.body.repeatType;
+  const repeatAfterCompletionFrequencyValue = req.body.repeatAfterCompletionFrequency;
+  const repeatAfterCompletionFrequencyTypeValue = req.body.repeatAfterCompletionFrequencyType;
+  const completedValue = req.body.completed;
+  const taskIDValue = req.params.taskId;
+  const queryUpdate = "UPDATE Tasks SET userID = ?, name = ?, taskDetails = ?, startDate = ?, endDate = ?, repeats = ?, repeatType = ?, repeatAfterCompletionFrequency = ?, repeatAfterCompletionFrequencyType = ?, completed = ? WHERE taskID = ?;";
+  const querySelect = "SELECT * FROM Tasks WHERE taskID = ?;"
 
-  if (exampleTasks.some(task => task.id.toString() === taskId)) {
-    res.status(200).send({
-      "message": `You issued a put request for ID: ${taskId}`
-    });
-  }
-  else {
-    res.status(404).send({
-      "message": `Task with id ${taskId} does not exist`
-    });
-  }
+  connection.query(queryUpdate, [userIDValue, nameValue, taskDetailsValue, startDateValue, endDateValue, repeatsValue, repeatTypeValue, repeatAfterCompletionFrequencyValue, repeatAfterCompletionFrequencyTypeValue, completedValue, taskIDValue], function (error, data) {
+    if (error) {
+      console.log("Error updating task", error);
+      res.status(500).json({
+        error: error
+      })
+    }
+    else if (data.affectedRows === 0) {
+      console.log("Task being updated does not exist");
+      res.status(404).send("Task being updated does not exist");
+    }
+    else if (data.changedRows === 0) {
+      console.log("No changes were made to the task");
+      res.status(500).send("No changes were made to the task");
+    }
+    else {
+      connection.query(querySelect, taskIDValue, function (error, data) {
+        if (error) {
+          console.log("Error selecting new task", error);
+          res.status(500).json({
+            error: error
+          })
+        }
+        else {
+          res.status(200).json({
+            updatedTask: data
+          })
+        }
+      })
+    }
+  });
 });
 
 module.exports.tasks = serverless(app);
