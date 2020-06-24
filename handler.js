@@ -20,21 +20,39 @@ const connection = mysql.createConnection({
 // Tasks table
 
 app.get("/tasks", function (req, res) {
-  const queryGet = "SELECT * FROM Tasks;";
-
-  connection.query(queryGet, function (error, data) {
-    if (error) {
-      console.log("Error fetching tasks", error);
-      res.status(500).json({
-        error: error
-      })
-    }
-    else {
-      res.status(200).json({
-        tasks: data
-      })
-    }
-  });
+  const userIDValue = req.query.userID;
+  if (userIDValue) {
+    const queryGet = "SELECT * FROM Tasks WHERE userID = ?;";
+    connection.query(queryGet, userIDValue, function (error, data) {
+      if (error) {
+        console.log("Error fetching tasks", error);
+        res.status(500).json({
+          error: error
+        })
+      }
+      else {
+        res.status(200).json({
+          tasks: data
+        })
+      }
+    });
+  }
+  else {
+    const queryGet = "SELECT * FROM Tasks;"
+    connection.query(queryGet, function (error, data) {
+      if (error) {
+        console.log("Error fetching tasks", error);
+        res.status(500).json({
+          error: error
+        })
+      }
+      else {
+        res.status(200).json({
+          tasks: data
+        })
+      }
+    });
+  }
 });
 
 app.post("/tasks", function (req, res) {
@@ -138,21 +156,56 @@ app.put("/tasks/:taskId", function (req, res) {
 // Users table
 
 app.get("/users", function (req, res) {
-  const queryGet = "SELECT * FROM Users;";
-
-  connection.query(queryGet, function (error, data) {
-    if (error) {
-      console.log("Error fetching users", error);
-      res.status(500).json({
-        error: error
-      })
-    }
-    else {
-      res.status(200).json({
-        users: data
-      })
-    }
-  });
+  const usernameValue = req.query.username;
+  const userID = req.query.userID;
+  if (usernameValue) {
+    const queryGet = "SELECT * FROM Users WHERE username = ?;";
+    connection.query(queryGet, usernameValue, function (error, data) {
+      if (error) {
+        console.log("Error fetching user", error);
+        res.status(500).json({
+          error: error
+        })
+      }
+      else {
+        res.status(200).json({
+          user: data
+        })
+      }
+    });
+  }
+  else if (userID) {
+    const queryGet = "SELECT * FROM Users WHERE userID = ?;";
+    connection.query(queryGet, userID, function (error, data) {
+      if (error) {
+        console.log("Error fetching user", error);
+        res.status(500).json({
+          error: error
+        })
+      }
+      else {
+        res.status(200).json({
+          user: data
+        })
+      }
+    });
+  }
+  else {
+    const queryGet = "SELECT * FROM Users;"
+    connection.query(queryGet, function (error, data) {
+      if (error) {
+        console.log("Error fetching users", error);
+        res.status(500).json({
+          error: error
+        })
+      }
+      else {
+        res.status(200).json({
+          users: data
+        })
+      }
+    });
+  }
 
 });
 
