@@ -62,15 +62,15 @@ app.post("/tasks", function (req, res) {
   const startDateValue = req.body.startDate;
   const endDateValue = req.body.endDate;
   const repeatsValue = req.body.repeats;
-  const repeatTypeValue = req.body.repeatType;
   const repeatAfterCompletionFrequencyValue = req.body.repeatAfterCompletionFrequency;
   const repeatAfterCompletionFrequencyTypeValue = req.body.repeatAfterCompletionFrequencyType;
   const completedValue = req.body.completed;
+  const dayPlanValue = req.body.dayPlan;
 
-  const queryPost = "INSERT INTO Tasks (userID, name, taskDetails, startDate, endDate, repeats, repeatType, repeatAfterCompletionFrequency, repeatAfterCompletionFrequencyType, completed) VALUES (?,?,?,?,?,?,?,?,?,?);";
+  const queryPost = "INSERT INTO Tasks (userID, name, taskDetails, startDate, endDate, repeats, repeatAfterCompletionFrequency, repeatAfterCompletionFrequencyType, completed, dayPlan) VALUES (?,?,?,?,?,?,?,?,?,?);";
   const querySelect = "SELECT * FROM Tasks WHERE taskID = ?;"
 
-  connection.query(queryPost, [userIDValue, nameValue, taskDetailsValue, startDateValue, endDateValue, repeatsValue, repeatTypeValue, repeatAfterCompletionFrequencyValue, repeatAfterCompletionFrequencyTypeValue, completedValue], function (error, data) {
+  connection.query(queryPost, [userIDValue, nameValue, taskDetailsValue, startDateValue, endDateValue, repeatsValue, repeatAfterCompletionFrequencyValue, repeatAfterCompletionFrequencyTypeValue, completedValue,dayPlanValue], function (error, data) {
     if (error) {
       console.log("Error adding task", error);
       res.status(500).json({
@@ -123,15 +123,15 @@ app.put("/tasks/:taskId", function (req, res) {
   const startDateValue = req.body.startDate;
   const endDateValue = req.body.endDate;
   const repeatsValue = req.body.repeats;
-  const repeatTypeValue = req.body.repeatType;
   const repeatAfterCompletionFrequencyValue = req.body.repeatAfterCompletionFrequency;
   const repeatAfterCompletionFrequencyTypeValue = req.body.repeatAfterCompletionFrequencyType;
   const completedValue = req.body.completed;
+  const dayPlanValue = req.body.dayPlan;
   const taskIDValue = req.params.taskId;
-  const queryUpdate = "UPDATE Tasks SET userID = ?, name = ?, taskDetails = ?, startDate = ?, endDate = ?, repeats = ?, repeatType = ?, repeatAfterCompletionFrequency = ?, repeatAfterCompletionFrequencyType = ?, completed = ? WHERE taskID = ?;";
+  const queryUpdate = "UPDATE Tasks SET userID = ?, name = ?, taskDetails = ?, startDate = ?, endDate = ?, repeats = ?, repeatAfterCompletionFrequency = ?, repeatAfterCompletionFrequencyType = ?, completed = ?, dayPlan = ? WHERE taskID = ?;";
   const querySelect = "SELECT * FROM Tasks WHERE taskID = ?;"
 
-  connection.query(queryUpdate, [userIDValue, nameValue, taskDetailsValue, startDateValue, endDateValue, repeatsValue, repeatTypeValue, repeatAfterCompletionFrequencyValue, repeatAfterCompletionFrequencyTypeValue, completedValue, taskIDValue], function (error, data) {
+  connection.query(queryUpdate, [userIDValue, nameValue, taskDetailsValue, startDateValue, endDateValue, repeatsValue, repeatAfterCompletionFrequencyValue, repeatAfterCompletionFrequencyTypeValue, completedValue, dayPlanValue, taskIDValue], function (error, data) {
     if (error) {
       console.log("Error updating task", error);
       res.status(500).json({
