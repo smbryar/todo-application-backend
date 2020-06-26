@@ -210,11 +210,12 @@ app.get("/users", function (req, res) {
 });
 
 app.post("/users", function (req, res) {
+  const userIDValue = req.body.userID;
   const usernameValue = req.body.username;
-  const queryPost = "INSERT INTO Users (username) VALUES (?);";
+  const queryPost = "INSERT INTO Users (userID, username) VALUES (?,?);";
   const querySelect = "SELECT * FROM Users WHERE userID = ?;"
 
-  connection.query(queryPost, usernameValue, function (error, data) {
+  connection.query(queryPost, [userIDValue, usernameValue], function (error, data) {
     if (error) {
       console.log("Error adding user", error);
       res.status(500).json({
