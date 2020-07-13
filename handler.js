@@ -21,7 +21,6 @@ const connection = mysql.createConnection({
 
 app.get("/tasks", function (req, res) {
   const userIDValue = req.query.userID;
-  
   if (userIDValue) {
     const queryGet = "SELECT * FROM Tasks WHERE userID = ?;";
     connection.query(queryGet, userIDValue, function (error, data) {
@@ -57,9 +56,21 @@ app.get("/tasks", function (req, res) {
 });
 
 app.post("/tasks", function (req, res) {
-  const task = req.body
+  const userIDValue = req.body.userID;
+  const nameValue = req.body.name;
+  const taskDetailsValue = req.body.taskDetails;
+  const startDateValue = req.body.startDate;
+  const endDateValue = req.body.endDate;
+  const repeatsValue = req.body.repeats;
+  const repeatAfterCompletionFrequencyValue = req.body.repeatAfterCompletionFrequency;
+  const repeatAfterCompletionFrequencyTypeValue = req.body.repeatAfterCompletionFrequencyType;
+  const completedValue = req.body.completed;
+  const dayPlanValue = req.body.dayPlan;
 
-  connection.query("INSERT INTO Tasks SET ?;", task, function (error, data) {
+  const queryPost = "INSERT INTO Tasks (userID, name, taskDetails, startDate, endDate, repeats, repeatAfterCompletionFrequency, repeatAfterCompletionFrequencyType, completed, dayPlan) VALUES (?,?,?,?,?,?,?,?,?,?);";
+  const querySelect = "SELECT * FROM Tasks WHERE taskID = ?;"
+
+  connection.query(queryPost, [userIDValue, nameValue, taskDetailsValue, startDateValue, endDateValue, repeatsValue, repeatAfterCompletionFrequencyValue, repeatAfterCompletionFrequencyTypeValue, completedValue,dayPlanValue], function (error, data) {
     if (error) {
       console.log("Error adding task", error);
       res.status(500).json({
@@ -67,7 +78,7 @@ app.post("/tasks", function (req, res) {
       })
     }
     else {
-      connection.query("SELECT * FROM Tasks WHERE taskID = ?;", [data.insertId], function (error, data) {
+      connection.query(querySelect, [data.insertId], function (error, data) {
         if (error) {
           console.log("Error selecting new task", error);
           res.status(500).json({
@@ -86,8 +97,9 @@ app.post("/tasks", function (req, res) {
 
 app.delete("/tasks/:taskId", function (req, res) {
   const taskIDValue = req.params.taskId;
+  const queryDelete = "DELETE FROM Tasks WHERE taskID = ?;";
 
-  connection.query("DELETE FROM Tasks WHERE taskID = ?;", taskIDValue, function (error, data) {
+  connection.query(queryDelete, taskIDValue, function (error, data) {
     if (error) {
       console.log("Error deleting task", error);
       res.status(500).json({
@@ -105,9 +117,21 @@ app.delete("/tasks/:taskId", function (req, res) {
 });
 
 app.put("/tasks/:taskId", function (req, res) {
-  const task = req.body;
+  const userIDValue = req.body.userID;
+  const nameValue = req.body.name;
+  const taskDetailsValue = req.body.taskDetails;
+  const startDateValue = req.body.startDate;
+  const endDateValue = req.body.endDate;
+  const repeatsValue = req.body.repeats;
+  const repeatAfterCompletionFrequencyValue = req.body.repeatAfterCompletionFrequency;
+  const repeatAfterCompletionFrequencyTypeValue = req.body.repeatAfterCompletionFrequencyType;
+  const completedValue = req.body.completed;
+  const dayPlanValue = req.body.dayPlan;
+  const taskIDValue = req.params.taskId;
+  const queryUpdate = "UPDATE Tasks SET userID = ?, name = ?, taskDetails = ?, startDate = ?, endDate = ?, repeats = ?, repeatAfterCompletionFrequency = ?, repeatAfterCompletionFrequencyType = ?, completed = ?, dayPlan = ? WHERE taskID = ?;";
+  const querySelect = "SELECT * FROM Tasks WHERE taskID = ?;"
 
-  connection.query("UPDATE Tasks SET ? WHERE taskID = ?;", [task, req.params.taskId], function (error, data) {
+  connection.query(queryUpdate, [userIDValue, nameValue, taskDetailsValue, startDateValue, endDateValue, repeatsValue, repeatAfterCompletionFrequencyValue, repeatAfterCompletionFrequencyTypeValue, completedValue, dayPlanValue, taskIDValue], function (error, data) {
     if (error) {
       console.log("Error updating task", error);
       res.status(500).json({
@@ -134,9 +158,9 @@ app.put("/tasks/:taskId", function (req, res) {
 app.get("/users", function (req, res) {
   const usernameValue = req.query.username;
   const userID = req.query.userID;
-
   if (usernameValue) {
-    connection.query("SELECT * FROM Users WHERE username = ?;", usernameValue, function (error, data) {
+    const queryGet = "SELECT * FROM Users WHERE username = ?;";
+    connection.query(queryGet, usernameValue, function (error, data) {
       if (error) {
         console.log("Error fetching user", error);
         res.status(500).json({
@@ -151,7 +175,8 @@ app.get("/users", function (req, res) {
     });
   }
   else if (userID) {
-    connection.query("SELECT * FROM Users WHERE userID = ?;", userID, function (error, data) {
+    const queryGet = "SELECT * FROM Users WHERE userID = ?;";
+    connection.query(queryGet, userID, function (error, data) {
       if (error) {
         console.log("Error fetching user", error);
         res.status(500).json({
@@ -166,7 +191,8 @@ app.get("/users", function (req, res) {
     });
   }
   else {
-    connection.query("SELECT * FROM Users;", function (error, data) {
+    const queryGet = "SELECT * FROM Users;"
+    connection.query(queryGet, function (error, data) {
       if (error) {
         console.log("Error fetching users", error);
         res.status(500).json({
@@ -184,9 +210,12 @@ app.get("/users", function (req, res) {
 });
 
 app.post("/users", function (req, res) {
-  const user = req.body
+  const userIDValue = req.body.userID;
+  const usernameValue = req.body.username;
+  const queryPost = "INSERT INTO Users (userID, username) VALUES (?,?);";
+  const querySelect = "SELECT * FROM Users WHERE userID = ?;"
 
-  connection.query("INSERT INTO Users SET ?;", user, function (error, data) {
+  connection.query(queryPost, [userIDValue, usernameValue], function (error, data) {
     if (error) {
       console.log("Error adding user", error);
       res.status(500).json({
@@ -194,7 +223,7 @@ app.post("/users", function (req, res) {
       })
     }
     else {
-      connection.query("SELECT * FROM Users WHERE userID = ?;", [data.insertId], function (error, data) {
+      connection.query(querySelect, [data.insertId], function (error, data) {
         if (error) {
           console.log("Error selecting new user", error);
           res.status(500).json({
@@ -212,7 +241,10 @@ app.post("/users", function (req, res) {
 });
 
 app.delete("/users/:userId", function (req, res) {
-  connection.query("DELETE FROM Users WHERE userID = ?;", req.params.userId, function (error, data) {
+  const userIDValue = req.params.userId;
+  const queryDelete = "DELETE FROM Users WHERE userID = ?;";
+
+  connection.query(queryDelete, userIDValue, function (error, data) {
     if (error) {
       console.log("Error deleting user", error);
       res.status(500).json({
@@ -232,8 +264,10 @@ app.delete("/users/:userId", function (req, res) {
 app.put("/users/:userId", function (req, res) {
   const userIDValue = req.params.userId;
   const usernameValue = req.body.username;
+  const queryUpdate = "UPDATE Users SET username = ? WHERE userID = ?;";
+  const querySelect = "SELECT * FROM Users WHERE userID = ?;"
 
-  connection.query("UPDATE Users SET username = ? WHERE userID = ?;", [usernameValue, userIDValue], function (error, data) {
+  connection.query(queryUpdate, [usernameValue, userIDValue], function (error, data) {
     if (error) {
       console.log("Error updating user", error);
       res.status(500).json({
